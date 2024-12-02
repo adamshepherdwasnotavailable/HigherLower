@@ -5,6 +5,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEditor.Rendering;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class MakeCard : MonoBehaviour
@@ -15,30 +16,28 @@ public class MakeCard : MonoBehaviour
     public Texture2D diamondsTexture;
     public Texture2D spadesTexture;
 
+    public Texture2D kingTexture;
+    public Texture2D queenTexture;
+    public Texture2D jackTexture;
+    public Texture2D jokerTexture;
+
     public GameObject textLabelPrefab;
+    public GameObject jokerTextPrefab;
 
-    public enum Suit
-    {
-        Clubs,
-        Hearts,
-        Diamonds,
-        Spades
-    }
 
-    public Suit CardSuit
+    public Card.Suit CardSuit
     {
         get
         {
-            return _suit;
+            return _cardSuit;
         }
         set
         {
-            _suit = value;
-            UpdateCardUI();
+            _cardSuit = value;
         }
     }
 
-    [SerializeField] private Suit _suit;
+    [SerializeField] private Card.Suit _cardSuit;
 
     public int Pip
     {
@@ -49,20 +48,22 @@ public class MakeCard : MonoBehaviour
         set
         {
             _pip = value;
-            UpdateCardUI();
         }
     }
-    [Range(1, 13)]
+    [Range(1, 14)]
     [SerializeField] private int _pip;
 
     public float pipSize = 0.15f;
-    public float topBottomPadding = 0.05f;
+    public float topBottomPadding = 0.09f;
     public float leftRightPadding = 0.25f;
-    public float labelCornerDistanceX = 0.2f;
-    public float labelCornerDistanceY = 0.2f;
+    public float labelCornerDistanceX = 0.13f;
+    public float labelCornerDistanceY = 0.12f;
     public float labelSizeX = 0.15f;
-    public float labelSizeY = 0.25f;
-    public float labelProportionSuit = 0.6f;
+    public float labelSizeY = 0.21f;
+    public float labelProportionSuit = 0.18f;
+
+    private Texture2D currentCardTexture;
+    private Color currentCardColor;
 
     // playing cards pips follow two grids, a 3 x 3, and a 5x3 (and a combination of the two)
     private Dictionary<int, PipPattern> patterns = new Dictionary<int, PipPattern>
@@ -96,13 +97,42 @@ public class MakeCard : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateCardUI();
     }
 
-    private void UpdateCardUI()
+    private void UpdateSuitColorAndTexture()
     {
+        switch (CardSuit)
+        {
+            case Card.Suit.Clubs:
+                currentCardColor = Color.black;
+                currentCardTexture = clubsTexture;
+                break;
+            case Card.Suit.Spades:
+                currentCardColor = Color.black;
+                currentCardTexture = spadesTexture;
+                break;
+            case Card.Suit.Hearts:
+                currentCardColor = Color.red;
+                currentCardTexture = heartsTexture;
+                break;
+            case Card.Suit.Diamonds:
+                currentCardColor = Color.red;
+                currentCardTexture = diamondsTexture;
+                break;
+        }
+    }
+
+    public void UpdateCardUI()
+    {
+        // Update the values to match deck
+        CardSuit = Game.deck.currentCard.suit;
+        Pip = Game.deck.currentCard.pips;
+
         // First, clear any current graphics on the card
         DestroyAllChildren(gameObject);
+
+        // check that suit color and texture correct
+        UpdateSuitColorAndTexture();
 
         // get the required pattern
         if (Pip == Math.Clamp(Pip, 2, 10)) {
@@ -115,13 +145,34 @@ public class MakeCard : MonoBehaviour
                 // Ace - make pip in middle and big
                 AddPip(1, 0.5f, 0.5f, false, 3.0f);
             }
-            else if (Pip >= 11 && Pip <= 13)
+            else if (Pip == 11)
             {
                 // draw a jack/queen/king in the middle
+                AddCardPicture(jackTexture);
+            }
+            else if (Pip == 12)
+            {
+                // draw a jack/queen/king in the middle
+                AddCardPicture(queenTexture);
+            }
+            else if (Pip == 13)
+            {
+                // draw a jack/queen/king in the middle
+                AddCardPicture(kingTexture);
             }
         }
 
-        UpdateCardCorners();
+        if (Pip == 14)
+        {
+            // joker - special case
+            AddJokerLabels();
+            AddCardPicture(jokerTexture);
+
+        }
+        else
+        {
+            UpdateCardCorners();
+        }
     }
 
     private void UpdateCardCorners()
@@ -147,10 +198,10 @@ public class MakeCard : MonoBehaviour
 
         // need to write a number, or A, J, Q, K
         // Undernearth need the suit
-        AddCardLabel(0 + labelCornerDistanceX, 0 + labelCornerDistanceY, cardLabel, Color.black, true);
-        AddCardLabel(1 - labelCornerDistanceX, 0 + labelCornerDistanceY, cardLabel, Color.black, true);
-        AddCardLabel(0 + labelCornerDistanceX, 1 - labelCornerDistanceY, cardLabel, Color.black);
-        AddCardLabel(1 - labelCornerDistanceX, 1 - labelCornerDistanceY, cardLabel, Color.black);
+        AddCardLabel(0 + labelCornerDistanceX, 0 + labelCornerDistanceY, cardLabel, true);
+        AddCardLabel(1 - labelCornerDistanceX, 0 + labelCornerDistanceY, cardLabel, true);
+        AddCardLabel(0 + labelCornerDistanceX, 1 - labelCornerDistanceY, cardLabel);
+        AddCardLabel(1 - labelCornerDistanceX, 1 - labelCornerDistanceY, cardLabel);
     }
 
     private void UpdateNonPictureCard()
@@ -260,11 +311,11 @@ public class MakeCard : MonoBehaviour
 
         Image pipImage = pipObj.AddComponent<Image>();
         pipImage.preserveAspect = true;
-        Sprite pipSprite = Sprite.Create(clubsTexture, new Rect(0, 0, clubsTexture.width, clubsTexture.height), Vector2.zero);
+        Sprite pipSprite = Sprite.Create(currentCardTexture, new Rect(0, 0, currentCardTexture.width, currentCardTexture.height), Vector2.zero);
         pipImage.sprite = pipSprite;
     }
 
-    private void AddCardLabel(float xLoc, float yLoc, string cardName, Color labelColor, bool flipped = false)
+    private void AddCardLabel(float xLoc, float yLoc, string cardName, bool flipped = false)
     {
         // first create empty group to hold pip and text
         GameObject labelHolder = new GameObject("LabelHolder");
@@ -292,7 +343,7 @@ public class MakeCard : MonoBehaviour
 
         Image pipImage = pipObj.AddComponent<Image>();
         pipImage.preserveAspect = true;
-        Sprite pipSprite = Sprite.Create(clubsTexture, new Rect(0, 0, clubsTexture.width, clubsTexture.height), Vector2.zero);
+        Sprite pipSprite = Sprite.Create(currentCardTexture, new Rect(0, 0, currentCardTexture.width, currentCardTexture.height), Vector2.zero);
         pipImage.sprite = pipSprite;
 
         // now create text
@@ -310,7 +361,7 @@ public class MakeCard : MonoBehaviour
         if (textMeshPro != null)
         {
             textMeshPro.text = cardName;
-            textMeshPro.color = labelColor;
+            textMeshPro.color = currentCardColor;
         }
 
         if (flipped)
@@ -318,5 +369,39 @@ public class MakeCard : MonoBehaviour
             labelHolder.transform.Rotate(new Vector3(0, 0, 180));
         }
 
+    }
+
+    private void AddCardPicture(Texture2D texture)
+    {
+        GameObject picObj = new GameObject("Picture");
+
+        RectTransform trans = picObj.AddComponent<RectTransform>();
+        trans.transform.SetParent(gameObject.transform);
+        trans.localScale = Vector3.one;
+        trans.anchorMin = new Vector2(0.2f, 0.2f);
+        trans.anchorMax = new Vector2(0.8f, 0.8f);
+        trans.anchoredPosition = new Vector2(0.5f, 0.5f);
+        trans.offsetMax = Vector2.zero;
+        trans.offsetMin = Vector2.zero;
+
+        Image pipImage = picObj.AddComponent<Image>();
+        pipImage.preserveAspect = true;
+        Sprite pipSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+        pipImage.sprite = pipSprite;
+
+    }
+
+    private void AddJokerLabels()
+    {
+        // now create text
+        GameObject textLabel = Instantiate(jokerTextPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+        RectTransform trans = textLabel.GetComponent<RectTransform>();
+        trans.transform.SetParent(gameObject.transform);
+        trans.localScale = Vector3.one;
+        trans.anchoredPosition = new Vector2(0.5f, 0.5f);
+        trans.anchorMin = new Vector2(0, 0);
+        trans.anchorMax = new Vector2(1, 1);
+        trans.offsetMax = Vector2.zero;
+        trans.offsetMin = Vector2.zero;
     }
 }

@@ -12,7 +12,7 @@ public class ButtonClicked : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        button.onClick.AddListener(PlayGame);
+        button.onClick.AddListener(ChangeScene);
     }
 
     private void OnDestroy()
@@ -26,8 +26,12 @@ public class ButtonClicked : MonoBehaviour
 
     }
 
-    private void PlayGame()
+    private void ChangeScene()
     {
+        if (sceneName == "Game")
+        {
+            Game.StartGame();
+        }
         SceneManager.LoadScene(sceneName);
     }
 }
