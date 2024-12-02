@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -8,6 +7,7 @@ using UnityEngine.UI;
 public class ButtonClicked : MonoBehaviour
 {
     public Button button;
+    public string sceneName;
 
     // Start is called before the first frame update
     void Start()
@@ -19,6 +19,7 @@ public class ButtonClicked : MonoBehaviour
     {
         button.onClick.RemoveAllListeners();
     }
+
     // Update is called once per frame
     void Update()
     {
@@ -27,6 +28,6 @@ public class ButtonClicked : MonoBehaviour
 
     private void PlayGame()
     {
-        SceneManager.LoadScene("Game")
+        SceneManager.LoadScene(sceneName);
     }
 }

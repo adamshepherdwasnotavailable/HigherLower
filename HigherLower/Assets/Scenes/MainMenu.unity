@@ -191,7 +191,7 @@ Canvas:
   m_GameObject: {fileID: 67968665}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 519420031}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -494,7 +494,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -575,6 +575,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11790c4123ae7f34b90f2c82fc1d0122, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  button: {fileID: 836604219}
+  sceneName: Game
 --- !u!1 &1119338938
 GameObject:
   m_ObjectHideFlags: 0
@@ -861,9 +863,9 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4284710243
-  m_fontColor: {r: 0.38643643, g: 0.49056602, b: 0.38643643, a: 1}
-  m_enableVertexGradient: 1
+    rgba: 4278213376
+  m_fontColor: {r: 0, g: 0.3584906, b: 0, a: 1}
+  m_enableVertexGradient: 0
   m_colorMode: 0
   m_fontColorGradient:
     topLeft: {r: 1, g: 0, b: 0, a: 1}
