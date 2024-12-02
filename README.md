@@ -14,7 +14,7 @@ The design of the playing cards are dynamically generated. This was done by foll
 
 ## Improvement Ideas
 ### Shop
-Ideally, I would have liked to implement implemented a shop, where coins could be used towards purchasing new card designs. This would make use of the dynamic card design generation I implemented.
+Ideally, I would have liked to have implemented a shop, where coins could be used towards purchasing new card designs. This would make use of the dynamic card design generation I implemented.
 
 ### Wager Buttons
 In future I would improve the wager modifier buttons, as currently you can only click to increment or decrement the wager by one. This is not user friendly once the number of coins a user has grows larger, and wagers become bigger. Ideally, a mouse hold to increase quickly, or a manual entry system would be implemented.
